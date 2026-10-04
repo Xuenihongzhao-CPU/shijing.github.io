@@ -190,10 +190,13 @@ function documentQuestionsFor(project=currentProject(),role=currentRole()){
   const entries=Object.entries(window.documentQA||{});
   const match=entries.find(([theme,people])=>theme.endsWith(`·${project.title}`) && people[role.name]);
   if(!match)return [];
-  return match[1][role.name].filter(item=>item.question && item.answer && !item.answer.trim().endsWith('是'));
+  return match[1][role.name]
+    .filter(item=>item.question && item.answer && !item.answer.trim().endsWith('是'))
+    .map(item=>({...item,question:stripQuestionAnswerPrefix(item.question),answer:stripQuestionAnswerPrefix(item.answer)}));
 }
 function getQuestions(){return [...questionList.querySelectorAll('.question-item')].map(el=>el.textContent.replace(/^题目\s*\d+\s*/,'').trim())}
 function escapeHtml(value){return String(value).replace(/[&<>'"]/g,char=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[char]))}
+function stripQuestionAnswerPrefix(value){return String(value).replace(/^(?:问题|答案)\s*\d+\s*[：:]\s*/,'').trim()}
 
 function renderRoles(){
   normalizeSelectedRole();
@@ -288,7 +291,7 @@ function renderMessages(){
   messageList.innerHTML=messages.map(message=>messageHtml(message)).join('');
   messageList.scrollTop=messageList.scrollHeight;
 }
-function messageHtml(message){const isUser=message.who==='user';return `<div class="message ${isUser?'user':'role'}"><div class="message-avatar">${isUser?'生':currentRole().initial}</div><div class="message-body"><div class="message-label">${isUser?'探究者':currentRole().name}</div><div class="message-bubble">${escapeHtml(message.text).replace(/\n/g,'<br>')}</div>${message.evidence?`<div class="evidence-line">${escapeHtml(message.evidence)}</div>`:''}</div></div>`}
+function messageHtml(message){const isUser=message.who==='user';const displayText=stripQuestionAnswerPrefix(message.text);return `<div class="message ${isUser?'user':'role'}"><div class="message-avatar">${isUser?'生':currentRole().initial}</div><div class="message-body"><div class="message-label">${isUser?'探究者':currentRole().name}</div><div class="message-bubble">${escapeHtml(displayText).replace(/\n/g,'<br>')}</div>${message.evidence?`<div class="evidence-line">${escapeHtml(message.evidence)}</div>`:''}</div></div>`}
 
 function randomChoices(){const project=currentProject();const role=currentRole();const documentQuestions=documentQuestionsFor(project,role).map(item=>item.question);const projectQuestions=project.questions||[];const pool=(documentQuestions.length?documentQuestions:(projectQuestions.length?projectQuestions:(choicePool[selectedRole]||role.prompts))).map(question=>question.replaceAll('{人物}',role.name));const shuffled=[...pool];for(let index=shuffled.length-1;index>0;index-=1){const swap=Math.floor(Math.random()*(index+1));[shuffled[index],shuffled[swap]]=[shuffled[swap],shuffled[index]]}return shuffled.slice(0,3)}
 function updateQuickPrompts(){
@@ -394,7 +397,7 @@ function migrateLegacyMessages(){
   let lastQuestion='';
   let changed=false;
   const messages=(state.messages||[]).map(message=>{
-    if(message.who==='user'){lastQuestion=message.text;return message;}
+    if(message.who==='user'){lastQuestion=stripQuestionAnswerPrefix(message.text);return message;}
     if(message.who==='role' && lastQuestion){
       changed=true;
       return respond(lastQuestion,currentRole(),currentProject());
@@ -407,7 +410,7 @@ function migrateLegacyMessages(){
 function renderQuestions(items){questionList.innerHTML=items.map((question,index)=>`<div class="question-item"><span>题目 ${index+1}</span>${escapeHtml(question)}</div>`).join('');state.questions=items;saveState()}
 function generateQuestions(){const role=currentRole();const count=state.messages?.filter(m=>m.who==='user').length || 0;const project=currentProject();const qs=[`结合“${project.title}”项目与${role.name}的${count?`本次 ${count} 个问题`:'对话'}，概括其回应中最突出的时代关切，并标出一处史料依据。`,`${role.name}的身份如何影响了他对“${role.focus.split(' · ')[0]}”的理解？请结合对话举例。`,`对话中哪些判断需要回到原始材料进一步核对？请指出材料名称，并说明核对理由。`];renderQuestions(qs);showToast('思考题已根据当前对话生成')}
 
-function exportSession(){const role=currentRole();const period=currentPeriod();const project=currentProject();const messages=state.messages?.length?state.messages:[initialMessage()];const qs=getQuestions().length?getQuestions():defaultQuestions;const lines=['史境 · 近代人物角色探究记录','='.repeat(34),'导出时间：'+new Date().toLocaleString('zh-CN'),'历史时期：'+period.name+'（'+period.date+'）','探究项目：'+project.title,'探究人物：'+role.name+'（'+role.group+'，'+role.years+'）','人物主题：'+role.focus,'史料来源：'+role.sources.join('；'),'','【时代坐标】',period.name+' · '+period.date,'在史料边界内开展角色视角对话。','',`【对话记录】`];messages.forEach(m=>lines.push((m.who==='user'?'探究者':'角色 · '+role.name)+'：\n'+m.text+(m.evidence?'\n['+m.evidence+']':'')+'\n'));lines.push('【思考题】');qs.forEach((q,i)=>lines.push(`${i+1}. ${q}`));lines.push('','【我的观察】',notes.value.trim()||'（未填写）','','—— 本记录由学生本地浏览器生成，平台不上传或保存对话内容 ——');const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const anchor=document.createElement('a');anchor.href=url;anchor.download=`史境_${period.name}_${role.name}_探究记录.txt`;anchor.click();URL.revokeObjectURL(url);showToast('完整探究记录已下载到本地')}
+function exportSession(){const role=currentRole();const period=currentPeriod();const project=currentProject();const messages=state.messages?.length?state.messages:[initialMessage()];const qs=getQuestions().length?getQuestions():defaultQuestions;const lines=['史境 · 近代人物角色探究记录','='.repeat(34),'导出时间：'+new Date().toLocaleString('zh-CN'),'历史时期：'+period.name+'（'+period.date+'）','探究项目：'+project.title,'探究人物：'+role.name+'（'+role.group+'，'+role.years+'）','人物主题：'+role.focus,'史料来源：'+role.sources.join('；'),'','【时代坐标】',period.name+' · '+period.date,'在史料边界内开展角色视角对话。','',`【对话记录】`];messages.forEach(m=>lines.push((m.who==='user'?'探究者':'角色 · '+role.name)+'：\n'+stripQuestionAnswerPrefix(m.text)+(m.evidence?'\n['+m.evidence+']':'')+'\n'));lines.push('【思考题】');qs.forEach((q,i)=>lines.push(`${i+1}. ${q}`));lines.push('','【我的观察】',notes.value.trim()||'（未填写）','','—— 本记录由学生本地浏览器生成，平台不上传或保存对话内容 ——');const blob=new Blob(['\ufeff'+lines.join('\n')],{type:'text/plain;charset=utf-8'});const url=URL.createObjectURL(blob);const anchor=document.createElement('a');anchor.href=url;anchor.download=`史境_${period.name}_${role.name}_探究记录.txt`;anchor.click();URL.revokeObjectURL(url);showToast('完整探究记录已下载到本地')}
 
 function clearSession(){if(!confirm('清空本次对话与思考题？此操作只影响当前浏览器。'))return;conversationToken+=1;responseQueue=[];responseProcessing=false;state={roleId:selectedRole,messages:[],notes:'',questions:[]};notes.value='';$('#char-count').textContent='0 / 500';renderMessages();renderQuestions(defaultQuestions);updateQuickPrompts();saveState();showToast('本次记录已清空')}
 function showToast(message){const toast=$('#toast');toast.textContent=message;toast.classList.add('is-visible');clearTimeout(showToast.timer);showToast.timer=setTimeout(()=>toast.classList.remove('is-visible'),2600)}
