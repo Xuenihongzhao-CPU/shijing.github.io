@@ -1,0 +1,146 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="史境：基于公开史料约束的近代历史人物角色探究工具" />
+  <title>史境 · 近代人物角色探究</title>
+  <link rel="stylesheet" href="styles.css" />
+  <link rel="stylesheet" href="directory.css" />
+</head>
+<body class="directory-mode">
+  <div class="app-shell">
+    <aside class="side-rail" aria-label="工具导航">
+      <div class="brand-mark" aria-label="史境">
+        <span class="brand-seal">史</span>
+        <span class="brand-name">史境</span>
+      </div>
+      <nav class="rail-nav">
+        <button class="rail-item is-active" type="button" title="探究工作台" aria-label="探究工作台"><span class="rail-glyph">◈</span></button>
+        <button class="rail-item" id="directory-nav" type="button" title="历史目录" aria-label="历史目录"><span class="rail-glyph">▤</span></button>
+        <button class="rail-item" type="button" title="学习记录" aria-label="学习记录"><span class="rail-glyph">⌁</span></button>
+      </nav>
+      <div class="rail-bottom">
+        <span class="local-dot"></span>
+        <span>LOCAL</span>
+      </div>
+    </aside>
+
+    <main class="app-main">
+      <header class="topbar">
+        <div class="crumbs"><span>历史探究</span><span class="crumb-slash">/</span><strong id="crumb-current">历史时期目录</strong></div>
+        <div class="top-actions">
+          <span class="privacy-chip"><span class="status-dot"></span>内容仅存本机</span>
+          <button class="text-button" id="back-directory" type="button">← 历史目录</button>
+          <button class="text-button" id="export-top" type="button">导出对话 <span aria-hidden="true">↗</span></button>
+        </div>
+      </header>
+
+      <div class="page-wrap">
+        <section class="intro-row">
+          <div>
+            <p class="eyebrow">HISTORICAL LENS / 01</p>
+            <h1>走进一段真实的历史</h1>
+            <p class="intro-copy">在时代的限制里提问，在人物的立场中思考。所有回应都以公开史料为边界。</p>
+          </div>
+          <div class="session-stamp">
+            <span class="stamp-label">本次探究</span>
+            <strong id="session-time">今日 · 课堂研讨</strong>
+            <span class="stamp-line"></span>
+            <small>无需登录 · 无后台记录</small>
+          </div>
+        </section>
+
+        <section class="progress-row" aria-label="探究流程">
+          <div class="progress-step is-done"><span>01</span><strong>选择角色</strong></div>
+          <span class="progress-connector is-done"></span>
+          <div class="progress-step is-current"><span>02</span><strong>对话探究</strong></div>
+          <span class="progress-connector"></span>
+          <div class="progress-step"><span>03</span><strong>留存思维</strong></div>
+          <div class="progress-note">建议先读左侧史料，再开始提问</div>
+        </section>
+
+        <section class="directory-section panel" id="period-directory">
+          <div class="directory-header">
+            <div>
+              <div class="panel-kicker"><span class="section-index">D</span><span>历史时期目录</span></div>
+              <h2>从时代坐标开始制作探究项目</h2>
+              <p>选择一个时期，浏览这一时代可以开展的角色、史料与问题探究。</p>
+            </div>
+            <div class="directory-selected"><span>当前项目</span><strong id="current-period-label">近代中国</strong><small id="current-project-label">近代人物角色对话</small></div>
+          </div>
+          <div class="period-tabs" id="period-tabs" role="tablist" aria-label="中国历史时期"></div>
+          <div class="project-grid" id="project-grid"></div>
+        </section>
+
+        <section class="workspace-grid">
+          <aside class="context-panel panel">
+            <div class="panel-kicker"><span class="section-index">A</span><span>时代坐标</span></div>
+            <div class="context-era" id="context-era">1840—1919</div>
+            <h2 id="context-title">近代中国</h2>
+            <p class="context-lead" id="context-lead">旧秩序与新事物相互碰撞，国家、士人和普通民众都在寻找出路。</p>
+
+            <div class="timeline" id="timeline"></div>
+
+            <div class="source-block">
+              <div class="source-heading"><span>⌘</span>本页史料范围</div>
+              <p>人物生平、公开文集、奏折与教材常用史料。角色只回答可由材料支持的内容。</p>
+              <span class="source-tag">OPEN SOURCES</span>
+            </div>
+            <div class="privacy-block">
+              <span class="privacy-icon">◌</span>
+              <div><strong>你的对话属于你</strong><p>记录只保存在此浏览器，刷新后仍可继续。</p></div>
+            </div>
+          </aside>
+
+          <div class="core-column">
+            <section class="role-panel panel">
+              <div class="panel-heading">
+                <div><div class="panel-kicker"><span class="section-index">B</span><span>选择一位历史人物</span></div><h2>你要与谁对话？</h2></div>
+                <span class="role-count"><span id="role-count">5</span> 位可探究</span>
+              </div>
+              <div class="role-grid" id="role-grid"></div>
+            </section>
+
+            <section class="conversation-card panel">
+              <div class="conversation-head">
+                <div class="persona-lockup"><div class="persona-avatar" id="persona-avatar">康</div><div><span class="role-mode">角色对话 · 史料约束中</span><h2 id="persona-name">康有为</h2></div></div>
+                <div class="conversation-meta"><span class="live-indicator"><span></span>本地引擎就绪</span><button class="icon-text-button" id="clear-session" type="button" title="清空本次对话">清空 <span aria-hidden="true">⌫</span></button></div>
+              </div>
+              <div class="message-list" id="message-list" aria-live="polite"></div>
+              <div class="quick-prompts" id="quick-prompts"></div>
+              <div class="choice-footer"><span>请选择一个探究问题，也可连续选择多个，人物将按顺序回应</span></div>
+            </section>
+          </div>
+
+          <aside class="reflection-panel panel">
+            <div class="panel-kicker"><span class="section-index">C</span><span>留存思维</span></div>
+            <div class="reflection-heading"><h2>把体验变成问题</h2><span class="spark">✦</span></div>
+            <p class="reflection-intro">完成几轮对话后，生成与你的探究轨迹相关的思辨题。</p>
+            <button class="generate-button" id="generate-questions" type="button"><span>✦</span> 生成思考题</button>
+            <div class="question-list" id="question-list"></div>
+            <div class="notes-block"><label for="notes">我的观察</label><textarea id="notes" rows="6" placeholder="记录一个让你意外的观点，或一个尚未解决的问题……"></textarea><div class="note-foot"><span>自动保存在本机</span><span id="char-count">0 / 500</span></div></div>
+            <button class="export-button" id="export-bottom" type="button"><span>⇩</span> 导出完整探究记录</button>
+          </aside>
+        </section>
+
+        <section class="project-placeholder panel" id="project-placeholder" aria-live="polite">
+          <div class="placeholder-mark">待</div>
+          <div class="placeholder-copy">
+            <div class="panel-kicker"><span class="section-index">待探索</span><span id="placeholder-period">秦汉 · 前221—220</span></div>
+            <h2 id="placeholder-project">帝国如何建立</h2>
+            <p id="placeholder-summary">这一主题的史料、角色与探究任务正在整理中。</p>
+            <span class="placeholder-note">此区域待探索</span>
+          </div>
+        </section>
+
+        <footer class="page-footer"><span>史境 / 近代人物角色探究工具</span><span>素材来源：公开史料汇编 · 中学历史教材常用材料</span><span>本地优先 · 不上传对话</span></footer>
+      </div>
+    </main>
+  </div>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="project-content.js"></script>
+  <script src="document-qa.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
